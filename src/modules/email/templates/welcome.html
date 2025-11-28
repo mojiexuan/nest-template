@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>欢迎</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px 20px;
+        min-height: 100vh;
+      }
+      .email-wrapper {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+      }
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px 30px;
+        text-align: center;
+        position: relative;
+      }
+      .header::after {
+        content: '';
+        position: absolute;
+        bottom: -20px;
+        left: 0;
+        right: 0;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        clip-path: polygon(0 0, 100% 0, 100% 0, 0 100%);
+      }
+      .header-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        backdrop-filter: blur(10px);
+        border: 3px solid rgba(255, 255, 255, 0.3);
+      }
+      .header-icon svg {
+        width: 40px;
+        height: 40px;
+        fill: white;
+      }
+      .header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .header p {
+        font-size: 16px;
+        opacity: 0.95;
+      }
+      .content {
+        padding: 50px 40px 40px;
+        background: #ffffff;
+      }
+      .welcome-banner {
+        text-align: center;
+        margin-bottom: 35px;
+      }
+      .welcome-emoji {
+        font-size: 64px;
+        margin-bottom: 20px;
+        animation: wave 1s ease-in-out;
+      }
+      @keyframes wave {
+        0%,
+        100% {
+          transform: rotate(0deg);
+        }
+        25% {
+          transform: rotate(-10deg);
+        }
+        75% {
+          transform: rotate(10deg);
+        }
+      }
+      .welcome-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 10px;
+      }
+      .welcome-subtitle {
+        font-size: 16px;
+        color: #666;
+      }
+      .divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent 0%, #e0e6ed 50%, transparent 100%);
+        margin: 30px 0;
+      }
+      .message {
+        font-size: 15px;
+        color: #666;
+        line-height: 1.8;
+        margin-bottom: 20px;
+      }
+      .feature-box {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+        border-radius: 12px;
+        padding: 25px;
+        margin: 25px 0;
+        border-left: 4px solid #667eea;
+      }
+      .feature-box h3 {
+        font-size: 16px;
+        color: #333;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+      }
+      .feature-box h3::before {
+        content: '✨';
+        margin-right: 8px;
+        font-size: 20px;
+      }
+      .feature-list {
+        list-style: none;
+        padding: 0;
+      }
+      .feature-list li {
+        padding: 8px 0 8px 25px;
+        position: relative;
+        font-size: 14px;
+        color: #555;
+      }
+      .feature-list li::before {
+        content: '✓';
+        position: absolute;
+        left: 5px;
+        color: #667eea;
+        font-weight: bold;
+        font-size: 16px;
+      }
+      .cta-box {
+        text-align: center;
+        margin: 30px 0;
+        padding: 25px;
+        background: #f8f9fa;
+        border-radius: 12px;
+      }
+      .cta-text {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 15px;
+      }
+      .footer {
+        text-align: center;
+        padding: 30px 40px;
+        background: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+      }
+      .footer-text {
+        font-size: 12px;
+        color: #999;
+        line-height: 1.8;
+      }
+      @media only screen and (max-width: 600px) {
+        body {
+          padding: 20px 10px;
+        }
+        .content {
+          padding: 40px 25px 30px;
+        }
+        .welcome-emoji {
+          font-size: 48px;
+        }
+        .welcome-title {
+          font-size: 24px;
+        }
+        .header h1 {
+          font-size: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-wrapper">
+      <!-- 头部 -->
+      <div class="header">
+        <div class="header-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+            />
+          </svg>
+        </div>
+        <h1>{{APP_NAME}}</h1>
+        <p>欢迎加入我们！</p>
+      </div>
+
+      <!-- 内容 -->
+      <div class="content">
+        <!-- 欢迎横幅 -->
+        <div class="welcome-banner">
+          <div class="welcome-emoji">🎉</div>
+          <div class="welcome-title">欢迎您，{{USERNAME}}！</div>
+          <div class="welcome-subtitle">感谢您注册 {{APP_NAME}}</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="message">我们很高兴您能加入我们的平台！现在您可以开始探索我们为您准备的精彩功能了。</div>
+
+        <!-- 特性介绍 -->
+        <div class="feature-box">
+          <h3>您可以做什么</h3>
+          <ul class="feature-list">
+            <li>完善您的个人资料，让其他用户更好地了解您</li>
+            <li>探索平台的各种功能和服务</li>
+            <li>与其他用户互动交流</li>
+            <li>随时查看您的账户信息和活动记录</li>
+          </ul>
+        </div>
+
+        <div class="message">
+          如果您在使用过程中遇到任何问题，或者有任何建议，请随时联系我们的客服团队。我们将竭诚为您服务！
+        </div>
+
+        <!-- 行动号召 -->
+        <div class="cta-box">
+          <div class="cta-text">祝您使用愉快！🎊</div>
+        </div>
+      </div>
+
+      <!-- 页脚 -->
+      <div class="footer">
+        <div class="footer-text">
+          这是一封系统自动发送的邮件，请勿直接回复<br />
+          &copy; {{YEAR}} {{APP_NAME}}. All rights reserved.
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
