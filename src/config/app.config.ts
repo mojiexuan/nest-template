@@ -9,12 +9,29 @@ export interface AppConfig {
 }
 
 /**
- * 应用配置对象
- * 根据环境变量配置应用基础参数
+ * 获取应用配置
  */
-export const appConfig: AppConfig = {
-  nodeEnv: process.env.NODE_ENV ?? 'development',
-  port: parseInt(process.env.PORT ?? '13000', 10),
-  isDevelopment: process.env.NODE_ENV === 'development',
-  isProduction: process.env.NODE_ENV === 'production',
-};
+function getAppConfig(): AppConfig {
+  const nodeEnv = process.env.NODE_ENV ?? 'development';
+  return {
+    nodeEnv,
+    port: parseInt(process.env.PORT ?? '13000', 10),
+    isDevelopment: nodeEnv === 'development',
+    isProduction: nodeEnv === 'production',
+  };
+}
+
+let _appConfig: AppConfig | null = null;
+
+/**
+ * 应用配置对象
+ * 使用惰性加载，确保在ConfigModule加载后才读取环境变量
+ */
+export const appConfig: AppConfig = new Proxy({} as AppConfig, {
+  get(target, prop) {
+    if (!_appConfig) {
+      _appConfig = getAppConfig();
+    }
+    return _appConfig[prop as keyof AppConfig];
+  },
+});

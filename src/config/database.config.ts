@@ -64,8 +64,13 @@ export const databaseConfig: DatabaseConfig = new Proxy({} as DatabaseConfig, {
  * @returns TypeORM模块配置选项
  */
 export const getTypeOrmConfig = (isDevelopment: boolean): TypeOrmModuleOptions => ({
-  ...databaseConfig,
-  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  type: databaseConfig.type,
+  host: databaseConfig.host,
+  port: databaseConfig.port,
+  username: databaseConfig.username,
+  password: databaseConfig.password,
+  database: databaseConfig.database,
+  autoLoadEntities: true,
   synchronize: isDevelopment,
   logging: isDevelopment,
 });
