@@ -1,4 +1,12 @@
 {
+  // 文件嵌套显示
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "tsconfig.json": "tsconfig.*.json, env.d.ts",
+    "vite.config.*": "jsconfig*, vitest.config.*, cypress.config.*, playwright.config.*",
+    "package.json": "package-lock.json, pnpm*, .yarnrc*, yarn*, .eslint*, eslint*, .oxlint*, oxlint*, .oxfmt*, .prettier*, prettier*, .editorconfig"
+  },
+
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
@@ -12,6 +20,7 @@
   // ESLint 配置
   "eslint.enable": true,
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "react"],
+  "eslint.useFlatConfig": true,
   "eslint.options": {
     "extensions": [".js", ".jsx", ".ts", ".tsx"]
   },
@@ -19,6 +28,10 @@
   // Prettier 配置
   "prettier.enable": true,
   "prettier.requireConfig": true,
+
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
 
   // 文件关联
   "[javascript]": {

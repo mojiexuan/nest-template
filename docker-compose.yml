@@ -16,8 +16,8 @@ services:
     ports:
       - '15432:5432'
     volumes:
-      - /docker/volumes/chenille/postgres/db_back:/db_back
-      - /docker/volumes/chenille/postgres/data:/var/lib/postgresql/data
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/chenille/postgres/db_back:/db_back
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/chenille/postgres/data:/var/lib/postgresql/data
     networks:
       - chenille_network
     healthcheck:
@@ -34,8 +34,8 @@ services:
     ports:
       - '16379:6379'
     volumes:
-      - /docker/volumes/chenille/redis/data:/data
-      - /docker/volumes/chenille/redis/logs:/var/log/redis
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/chenille/redis/data:/data
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/chenille/redis/logs:/var/log/redis
     environment:
       - TZ=Asia/Shanghai
     networks:
