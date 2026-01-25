@@ -1,4 +1,4 @@
-import { RedisOptions } from 'ioredis';
+import type { RedisOptions } from 'ioredis';
 
 /**
  * Redis配置接口
@@ -17,7 +17,7 @@ function getRedisConfig(): RedisConfig {
   return {
     host: process.env.REDIS_HOST ?? 'localhost',
     port: parseInt(process.env.REDIS_PORT ?? '16379', 10),
-    password: process.env.REDIS_PASSWORD || undefined,
+    password: process.env.REDIS_PASSWORD ?? undefined,
     db: parseInt(process.env.REDIS_DB ?? '1', 10),
   };
 }
@@ -30,9 +30,7 @@ let _redisConfig: RedisConfig | null = null;
  */
 export const redisConfig: RedisConfig = new Proxy({} as RedisConfig, {
   get(target, prop) {
-    if (!_redisConfig) {
-      _redisConfig = getRedisConfig();
-    }
+    _redisConfig ??= getRedisConfig();
     return _redisConfig[prop as keyof RedisConfig];
   },
 });

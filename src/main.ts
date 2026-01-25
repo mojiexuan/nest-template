@@ -1,8 +1,11 @@
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 import { HttpExceptionFilter } from '@common/filters/http-exception.filter';
 import { TransformInterceptor } from '@common/interceptors/transform.interceptor';
-import { appConfig } from '@config';
+import { appConfig, getFeatureStatus } from '@config';
+import { validateEnv } from '@config/env.schema';
 import { AppModule } from './app.module';
 
 /**
@@ -10,7 +13,18 @@ import { AppModule } from './app.module';
  * 创建并配置NestJS应用实例
  */
 async function bootstrap() {
+  // 校验环境变量
+  validateEnv();
+
+  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
+
+  // Helmet 安全头
+  app.use(
+    helmet({
+      contentSecurityPolicy: appConfig.isProduction ? undefined : false,
+    }),
+  );
 
   // 全局验证管道
   app.useGlobalPipes(
@@ -31,12 +45,48 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor());
 
   // 启用CORS
-  app.enableCors();
+  app.enableCors({
+    origin: appConfig.isProduction ? process.env.CORS_ORIGIN?.split(',') : true,
+    credentials: true,
+  });
 
   // 设置全局路由前缀
   app.setGlobalPrefix('api');
 
+  // Swagger 文档配置（仅开发环境）
+  if (appConfig.isDevelopment) {
+    const config = new DocumentBuilder()
+      .setTitle('Chenille Server API')
+      .setDescription('企业级NestJS项目API文档')
+      .setVersion('1.0.0')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: '输入JWT Token',
+        },
+        'JWT-auth',
+      )
+      .build();
+
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api-docs', app, document);
+  }
+
   await app.listen(appConfig.port);
+
+  // 打印启动信息
+  const features = getFeatureStatus();
+  logger.log(`🚀 应用已启动: http://localhost:${appConfig.port}/api`);
+  if (appConfig.isDevelopment) {
+    logger.log(`📚 API文档: http://localhost:${appConfig.port}/api-docs`);
+  }
+  logger.log(`📦 功能状态:`);
+  logger.log(`   - 数据库: ${features.database ? '✅ PostgreSQL' : '⚡ SQLite (内存)'}`);
+  logger.log(`   - 缓存: ${features.redis ? '✅ Redis' : '⚡ 内存存储'}`);
+  logger.log(`   - 认证: ${features.auth ? '✅ JWT' : '⚠️ 演示模式'}`);
+  logger.log(`   - 邮件: ${features.email ? '✅ SMTP' : '⏸️ 未配置'}`);
 }
 
 void bootstrap();

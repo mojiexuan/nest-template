@@ -12,7 +12,7 @@ export function requireEnv(key: string, message?: string): string {
   const value = process.env[key];
 
   if (!value) {
-    const errorMessage = message || `❌ 配置错误: ${key} 未设置!\n` + `请在 .env 文件中配置 ${key} 环境变量。`;
+    const errorMessage = message ?? `❌ 配置错误: ${key} 未设置!\n` + `请在 .env 文件中配置 ${key} 环境变量。`;
 
     throw new Error(errorMessage);
   }

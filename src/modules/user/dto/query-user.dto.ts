@@ -1,3 +1,4 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 import { PaginationDto } from '@common/dto/pagination.dto';
 
@@ -6,9 +7,7 @@ import { PaginationDto } from '@common/dto/pagination.dto';
  * 继承分页参数，支持按关键词搜索
  */
 export class QueryUserDto extends PaginationDto {
-  /**
-   * 搜索关键词（可选）
-   */
+  @ApiPropertyOptional({ description: '搜索关键词' })
   @IsOptional()
   @IsString({ message: '关键词必须是字符串' })
   keyword?: string;

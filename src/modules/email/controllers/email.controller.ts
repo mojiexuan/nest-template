@@ -1,18 +1,19 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { SendEmailDto } from '../dto/send-email.dto';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { SendEmailDto, SendVerificationDto, SendWelcomeDto, SendResetPasswordDto } from '../dto/send-email.dto';
 import { EmailService } from '../email.service';
 
 /**
  * 邮件控制器（示例）
  * 提供邮件发送的HTTP接口
  */
+@ApiTags('邮件')
+@ApiBearerAuth('JWT-auth')
 @Controller('email')
 export class EmailController {
   constructor(private readonly emailService: EmailService) {}
 
-  /**
-   * 发送自定义邮件
-   */
+  @ApiOperation({ summary: '发送自定义邮件' })
   @Post('send')
   async sendEmail(@Body() sendEmailDto: SendEmailDto) {
     await this.emailService.sendEmail(sendEmailDto);
@@ -22,11 +23,9 @@ export class EmailController {
     };
   }
 
-  /**
-   * 发送验证码邮件
-   */
+  @ApiOperation({ summary: '发送验证码邮件' })
   @Post('send-verification')
-  async sendVerification(@Body() body: { email: string; expiresInMinutes?: number }) {
+  async sendVerification(@Body() body: SendVerificationDto) {
     // 生成6位随机验证码
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -39,11 +38,9 @@ export class EmailController {
     };
   }
 
-  /**
-   * 发送欢迎邮件
-   */
+  @ApiOperation({ summary: '发送欢迎邮件' })
   @Post('send-welcome')
-  async sendWelcome(@Body() body: { email: string; username: string }) {
+  async sendWelcome(@Body() body: SendWelcomeDto) {
     await this.emailService.sendWelcomeEmail(body.email, body.username);
 
     return {
@@ -52,11 +49,9 @@ export class EmailController {
     };
   }
 
-  /**
-   * 发送密码重置邮件
-   */
+  @ApiOperation({ summary: '发送密码重置邮件' })
   @Post('send-reset-password')
-  async sendResetPassword(@Body() body: { email: string; resetToken: string; resetUrl: string }) {
+  async sendResetPassword(@Body() body: SendResetPasswordDto) {
     await this.emailService.sendPasswordResetEmail(body.email, body.resetToken, body.resetUrl);
 
     return {

@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { UserType } from '../enums/user-type.enum';
 import { UserStatus } from '../enums/user-status.enum';
+import { UserType } from '../enums/user-type.enum';
 
 /**
  * 用户实体

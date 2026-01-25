@@ -1,93 +1,161 @@
-import { Injectable, type OnModuleDestroy } from '@nestjs/common';
+import { Injectable, Logger, type OnModuleDestroy } from '@nestjs/common';
 import Redis from 'ioredis';
 import { getRedisOptions } from '@config';
+import { isRedisEnabled } from '@config/features.config';
 
 /**
  * Redis服务
  * 提供Redis操作的封装方法
+ * 如果未配置 Redis，则使用内存存储作为降级方案
  */
 @Injectable()
 export class RedisService implements OnModuleDestroy {
-  private readonly client: Redis;
+  private readonly logger = new Logger(RedisService.name);
+  private client: Redis | null = null;
+  private readonly memoryStore = new Map<string, { value: string; expireAt?: number }>();
+  private readonly enabled: boolean;
 
   constructor() {
-    // 使用统一的Redis配置
-    this.client = new Redis(getRedisOptions());
+    this.enabled = isRedisEnabled();
+
+    if (this.enabled) {
+      this.client = new Redis({
+        ...getRedisOptions(),
+        lazyConnect: true,
+        maxRetriesPerRequest: 3,
+        retryStrategy: (times: number) => {
+          if (times > 3) {
+            this.logger.warn('Redis 连接失败，降级为内存存储');
+            return null; // 停止重试
+          }
+          return Math.min(times * 100, 2000);
+        },
+      });
+
+      this.client.on('error', (err) => {
+        this.logger.warn(`Redis 错误: ${err.message}，使用内存存储`);
+      });
+
+      this.client.connect().catch(() => {
+        this.logger.warn('Redis 连接失败，使用内存存储');
+      });
+    } else {
+      this.logger.log('Redis 未配置，使用内存存储');
+    }
   }
 
   /**
-   * 获取Redis客户端实例
-   * @returns Redis客户端
+   * 检查 Redis 是否可用
    */
-  getClient(): Redis {
-    return this.client;
+  private isClientReady(): boolean {
+    return this.client?.status === 'ready';
   }
 
   /**
    * 设置键值对
-   * @param key - 键
-   * @param value - 值
-   * @param ttl - 过期时间（秒），可选
-   * @returns 操作结果
    */
   async set(key: string, value: string, ttl?: number): Promise<'OK'> {
-    if (ttl) {
-      return this.client.set(key, value, 'EX', ttl);
+    if (this.isClientReady() && this.client) {
+      if (ttl) {
+        return this.client.set(key, value, 'EX', ttl);
+      }
+      return this.client.set(key, value);
     }
-    return this.client.set(key, value);
+
+    // 内存存储降级
+    this.memoryStore.set(key, {
+      value,
+      expireAt: ttl ? Date.now() + ttl * 1000 : undefined,
+    });
+    return 'OK';
   }
 
   /**
    * 获取值
-   * @param key - 键
-   * @returns 值，不存在返回null
    */
   async get(key: string): Promise<string | null> {
-    return this.client.get(key);
+    if (this.isClientReady() && this.client) {
+      return this.client.get(key);
+    }
+
+    // 内存存储降级
+    const item = this.memoryStore.get(key);
+    if (!item) return null;
+    if (item.expireAt && Date.now() > item.expireAt) {
+      this.memoryStore.delete(key);
+      return null;
+    }
+    return item.value;
   }
 
   /**
    * 删除键
-   * @param key - 键
-   * @returns 删除的数量
    */
   async del(key: string): Promise<number> {
-    return this.client.del(key);
+    if (this.isClientReady() && this.client) {
+      return this.client.del(key);
+    }
+
+    // 内存存储降级
+    return this.memoryStore.delete(key) ? 1 : 0;
   }
 
   /**
    * 检查键是否存在
-   * @param key - 键
-   * @returns 是否存在
    */
   async exists(key: string): Promise<boolean> {
-    const result = await this.client.exists(key);
-    return result === 1;
+    if (this.isClientReady() && this.client) {
+      const result = await this.client.exists(key);
+      return result === 1;
+    }
+
+    // 内存存储降级
+    const item = this.memoryStore.get(key);
+    if (!item) return false;
+    if (item.expireAt && Date.now() > item.expireAt) {
+      this.memoryStore.delete(key);
+      return false;
+    }
+    return true;
   }
 
   /**
    * 设置过期时间
-   * @param key - 键
-   * @param seconds - 秒数
-   * @returns 操作结果
    */
   async expire(key: string, seconds: number): Promise<number> {
-    return this.client.expire(key, seconds);
+    if (this.isClientReady() && this.client) {
+      return this.client.expire(key, seconds);
+    }
+
+    // 内存存储降级
+    const item = this.memoryStore.get(key);
+    if (item) {
+      item.expireAt = Date.now() + seconds * 1000;
+      return 1;
+    }
+    return 0;
   }
 
   /**
    * 获取剩余过期时间
-   * @param key - 键
-   * @returns 剩余秒数，-1表示永不过期，-2表示不存在
    */
   async ttl(key: string): Promise<number> {
-    return this.client.ttl(key);
+    if (this.isClientReady() && this.client) {
+      return this.client.ttl(key);
+    }
+
+    // 内存存储降级
+    const item = this.memoryStore.get(key);
+    if (!item) return -2;
+    if (!item.expireAt) return -1;
+    const remaining = Math.ceil((item.expireAt - Date.now()) / 1000);
+    return remaining > 0 ? remaining : -2;
   }
 
   /**
    * 模块销毁时断开连接
    */
   onModuleDestroy() {
-    this.client.disconnect();
+    this.client?.disconnect();
   }
 }

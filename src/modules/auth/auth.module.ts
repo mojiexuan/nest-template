@@ -19,7 +19,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       useFactory: () => ({
         secret: jwtConfig.secret,
         signOptions: {
-          expiresIn: jwtConfig.expiresIn,
+          expiresIn: jwtConfig.expiresIn as `${number}${'s' | 'm' | 'h' | 'd'}` | number,
         },
       }),
     }),

@@ -60,9 +60,7 @@ let _emailConfig: EmailConfig | null = null;
  */
 export const emailConfig: EmailConfig = new Proxy({} as EmailConfig, {
   get(target, prop) {
-    if (!_emailConfig) {
-      _emailConfig = getEmailConfig();
-    }
+    _emailConfig ??= getEmailConfig();
     return _emailConfig[prop as keyof EmailConfig];
   },
 });

@@ -2,11 +2,13 @@ import { Injectable, UnauthorizedException, type ExecutionContext } from '@nestj
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { IS_PUBLIC_KEY } from '@common/decorators/public.decorator';
+import { isAuthEnabled, isDatabaseEnabled } from '@config/features.config';
 
 /**
  * JWT认证守卫
  * 全局守卫，自动验证所有请求的JWT Token
  * 使用@Public()装饰器可跳过验证
+ * 未配置认证或数据库时自动跳过验证
  */
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -20,6 +22,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
    * @returns 是否可以访问
    */
   canActivate(context: ExecutionContext) {
+    // 未配置认证或数据库时跳过验证
+    if (!isAuthEnabled() || !isDatabaseEnabled()) {
+      return true;
+    }
+
     // 检查是否标记为公开接口
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
@@ -50,6 +57,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     _context: ExecutionContext,
     _status?: unknown,
   ): TUser {
+    // 未配置认证时返回空用户
+    if (!isAuthEnabled() || !isDatabaseEnabled()) {
+      return 'demo-user' as TUser;
+    }
+
     if (err ?? !user) {
       throw err ?? new UnauthorizedException('未授权访问');
     }

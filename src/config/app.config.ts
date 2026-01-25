@@ -29,9 +29,7 @@ let _appConfig: AppConfig | null = null;
  */
 export const appConfig: AppConfig = new Proxy({} as AppConfig, {
   get(target, prop) {
-    if (!_appConfig) {
-      _appConfig = getAppConfig();
-    }
+    _appConfig ??= getAppConfig();
     return _appConfig[prop as keyof AppConfig];
   },
 });
