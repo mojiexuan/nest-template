@@ -1,10 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { HealthCheck, HealthCheckService, MemoryHealthIndicator, DiskHealthIndicator } from '@nestjs/terminus';
+import { ApiTag, ApiOperation, HttpMethod } from 'docupress-api';
 import { Public } from '@common/decorators/public.decorator';
 import { getFeatureStatus } from '@config/features.config';
 
-@ApiTags('健康检查')
+@ApiTag({ name: '健康检查', description: '服务健康状态' })
 @Controller('health')
 export class HealthController {
   constructor(
@@ -13,7 +13,12 @@ export class HealthController {
     private disk: DiskHealthIndicator,
   ) {}
 
-  @ApiOperation({ summary: '健康检查' })
+  @ApiOperation({
+    method: HttpMethod.GET,
+    path: '/api/health',
+    summary: '健康检查',
+    rawResponse: true,
+  })
   @Public()
   @Get()
   @HealthCheck()
@@ -27,21 +32,36 @@ export class HealthController {
     ]);
   }
 
-  @ApiOperation({ summary: '存活检查' })
+  @ApiOperation({
+    method: HttpMethod.GET,
+    path: '/api/health/liveness',
+    summary: '存活检查',
+    rawResponse: true,
+  })
   @Public()
   @Get('liveness')
   liveness() {
     return { status: 'ok' };
   }
 
-  @ApiOperation({ summary: '就绪检查' })
+  @ApiOperation({
+    method: HttpMethod.GET,
+    path: '/api/health/readiness',
+    summary: '就绪检查',
+    rawResponse: true,
+  })
   @Public()
   @Get('readiness')
   readiness() {
     return { status: 'ok' };
   }
 
-  @ApiOperation({ summary: '功能状态' })
+  @ApiOperation({
+    method: HttpMethod.GET,
+    path: '/api/health/features',
+    summary: '功能状态',
+    rawResponse: true,
+  })
   @Public()
   @Get('features')
   features() {
