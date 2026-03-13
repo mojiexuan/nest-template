@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Headers, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTag, ApiOperation, HttpMethod } from 'docupress-api';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Public } from '@common/decorators/public.decorator';
 import { LoginDto } from '../dto/login.dto';
 import { AuthService } from '../services/auth.service';
@@ -8,17 +8,12 @@ import { AuthService } from '../services/auth.service';
  * 认证控制器
  * 处理登录、登出等认证相关请求
  */
-@ApiTag({ name: '认证', description: '登录、登出、刷新Token' })
+@ApiTags('认证')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @ApiOperation({
-    method: HttpMethod.POST,
-    path: '/api/auth/login',
-    summary: '用户登录',
-    body: LoginDto,
-  })
+  @ApiOperation({ summary: '用户登录' })
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -26,11 +21,8 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
-  @ApiOperation({
-    method: HttpMethod.POST,
-    path: '/api/auth/logout',
-    summary: '用户登出',
-  })
+  @ApiOperation({ summary: '用户登出' })
+  @ApiBearerAuth('JWT')
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   async logout(@Headers('authorization') authorization: string) {
@@ -40,11 +32,8 @@ export class AuthController {
     }
   }
 
-  @ApiOperation({
-    method: HttpMethod.POST,
-    path: '/api/auth/refresh',
-    summary: '刷新Token',
-  })
+  @ApiOperation({ summary: '刷新Token' })
+  @ApiBearerAuth('JWT')
   @Post('refresh')
   async refresh(@Headers('authorization') authorization: string) {
     const token = authorization?.replace('Bearer ', '');
