@@ -14,6 +14,7 @@ import { RedisModule } from '@modules/redis/redis.module';
 import { TaskModule } from '@modules/task/task.module';
 import { UploadModule } from '@modules/upload/upload.module';
 import { UserModule } from '@modules/user/user.module';
+import { WebsocketModule } from '@modules/websocket/websocket.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -52,6 +53,9 @@ function buildImports(): Array<Type | DynamicModule | Promise<DynamicModule>> {
 
     // 文件上传模块
     UploadModule,
+
+    // WebSocket 模块
+    WebsocketModule,
   ];
 
   // 数据库模块（可选）

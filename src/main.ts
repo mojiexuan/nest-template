@@ -91,6 +91,7 @@ async function bootstrap() {
   if (appConfig.isDevelopment) {
     logger.log(`📚 API文档: http://localhost:${appConfig.port}/api-docs`);
   }
+  logger.log(`🔌 WebSocket: ws://localhost:${appConfig.port}/ws`);
   logger.log(`📦 功能状态:`);
   logger.log(`   - 数据库: ${features.database ? '✅ PostgreSQL' : '⚡ 未配置'}`);
   logger.log(`   - 缓存: ${features.redis ? '✅ Redis' : '⚡ 内存存储'}`);
