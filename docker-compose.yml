@@ -8,20 +8,20 @@ services:
     image: docker.1ms.run/postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: chenille
-      POSTGRES_USER: chenille
-      POSTGRES_PASSWORD: dE4kL3xT6gI1hT4eQ1cP2iV7iK4jQ6sK
+      POSTGRES_DB: ${DB_DATABASE:-chenille}
+      POSTGRES_USER: ${DB_USERNAME:-chenille}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
       TZ: Asia/Shanghai
     ports:
-      - '15432:5432'
+      - '${DB_PORT:-5432}:5432'
     volumes:
       - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/chenille/postgres/db_back:/db_back
       - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/chenille/postgres/data:/var/lib/postgresql/data
     networks:
       - chenille_network
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U chenille -d chenille']
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME:-chenille} -d ${DB_DATABASE:-chenille}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -32,7 +32,7 @@ services:
     image: docker.1ms.run/redis:7-alpine
     command: redis-server --appendonly yes
     ports:
-      - '16379:6379'
+      - '${REDIS_PORT:-6379}:6379'
     volumes:
       - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/chenille/redis/data:/data
       - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/chenille/redis/logs:/var/log/redis
